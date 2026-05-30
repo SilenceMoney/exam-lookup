@@ -1,0 +1,7 @@
+# Ignore python server and local helpers
+start_server.py
+*启动手机局域网服务.bat
+*.pyc
+__pycache__/
+.idea/
+.vscode/

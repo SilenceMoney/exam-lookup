@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ 考试快速查答案工具 - 30分钟100题冲刺神器</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="title-container">
+                <h1>⚡ 考试快查宝典</h1>
+                <span class="version-badge">v1.2 Premium</span>
+            </div>
+            <p class="subtitle">
+                30分钟100题冲刺神器！支持<b>汉字</b>、<b>拼音首字母(如 ldty)</b>、<b>多词空格组合</b>极速检索，秒级展示高亮正确答案。
+            </p>
+            
+            <div class="stats-row">
+                <div class="stat-badge total">
+                    <span>📚</span> 库中总题数: <span id="total-questions-count">1,727</span> 道
+                </div>
+                <div class="stat-badge match">
+                    <span>🎯</span> 匹配数: <span id="matched-count">1,727</span> 道
+                </div>
+                <div class="stat-badge time">
+                    <span>⚡</span> 检索用时: <span id="search-time">0.0</span> ms
+                </div>
+            </div>
+            
+            <div class="keyboard-hint">
+                💡 快捷键提示: 按 <kbd>Esc</kbd> 快速清空输入框并重置焦点 | 按 <kbd>↑</kbd> <kbd>↓</kbd> 键上下浏览 | 按 <kbd>Enter</kbd> 复制首条答案
+            </div>
+        </header>
+
+        <!-- Search Bar -->
+        <div class="search-wrapper">
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="search-input" class="search-input" placeholder="输入题目关键字、选项、或者拼音首字母检索（如: &quot;ldty&quot; 或 &quot;ldty nan&quot;）..." autofocus autocomplete="off">
+                <button id="clear-btn" class="clear-btn" title="清空搜索内容">×</button>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="filters-wrapper">
+            <div class="filter-group">
+                <div class="filter-label">科目分类 (Subject Filter)</div>
+                <div id="subject-filters" class="filter-options">
+                    <button class="filter-pill active" data-filter="all" data-type="subject">
+                        全部科目 <span class="count" id="count-subj-all">0</span>
+                    </button>
+                    <!-- JavaScript will generate pills here -->
+                </div>
+            </div>
+            
+            <div class="filter-group">
+                <div class="filter-label">题型分类 (Type Filter)</div>
+                <div id="type-filters" class="filter-options">
+                    <button class="filter-pill active" data-filter="all" data-type="type">
+                        全部题型 <span class="count" id="count-type-all">0</span>
+                    </button>
+                    <!-- JavaScript will generate pills here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Info -->
+        <div class="results-header">
+            <div class="results-title">检索结果</div>
+            <div class="results-count" id="results-meta">已为您展示前 100 条匹配结果</div>
+        </div>
+
+        <!-- Results List -->
+        <div id="results-list" class="results-list">
+            <!-- Questions rendered here by app.js -->
+        </div>
+    </div>
+
+    <!-- Scroll to top -->
+    <button id="scroll-to-top" class="scroll-to-top" title="回到顶部">▲</button>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast-container">
+        <span>✓</span> <span id="toast-message">答案已复制到剪贴板！</span>
+    </div>
+
+    <!-- Load the Database first (registers window.QUESTION_DATABASE) -->
+    <script src="questions.js"></script>
+    <!-- Load the main application logic -->
+    <script src="app.js"></script>
+</body>
+</html>

@@ -26,6 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedIndex = -1;
     let visibleCards = [];
 
+    // Auto-clear State
+    let needClearOnNextInput = false;
+
+    function triggerAutoClear() {
+        needClearOnNextInput = true;
+        searchInput.focus();
+        searchInput.select(); // Highlight the text so typing will replace it
+    }
+
     // Initialize UI
     totalCountEl.textContent = db.length.toLocaleString();
     generateFilters();
@@ -99,7 +108,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const slicedResults = filtered.slice(0, maxResults);
         renderResults(slicedResults, queryTerms);
         
-        if (filtered.length > maxResults) {
+        if (filtered.length > 1 && queryTerms.length > 0) {
+            resultsMetaEl.innerHTML = `<span style="color: #f59e0b; font-weight: 800; animation: pulseGlow 1.5s infinite;">⚠️ 检测到相似题干！</span> 请仔细比对 <span class="cond-tag tag-action-shoot" style="font-size:0.75rem; padding: 0.1rem 0.35rem;">🏀 投篮/突破</span>、<span class="cond-tag tag-warn" style="font-size:0.75rem; padding: 0.1rem 0.35rem;">以球为主/以人为主</span> 等发光条件胶囊！`;
+        } else if (filtered.length > maxResults) {
             resultsMetaEl.textContent = `已为您展示前 ${maxResults} 条匹配结果（共 ${filtered.length} 条）`;
         } else {
             resultsMetaEl.textContent = `已为您展示所有 ${filtered.length} 条匹配结果`;
@@ -219,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             card.querySelector('.copy-answer').addEventListener('click', (e) => {
                 e.stopPropagation();
                 copyToClipboard(q.answer, `答案 [${q.answer}] 已复制到剪贴板！`);
+                triggerAutoClear();
             });
             
             // Click card to select
@@ -274,8 +286,18 @@ document.addEventListener('DOMContentLoaded', () => {
         parsed = replaceTextOutsideTags(parsed, /(大一大二)/g, '<span class="cond-tag tag-g12">$1</span>');
         parsed = replaceTextOutsideTags(parsed, /(大三大四)/g, '<span class="cond-tag tag-g34">$1</span>');
         
-        // 3. Special metric distance values
-        parsed = replaceTextOutsideTags(parsed, /(800\s*米|1000\s*米|50\s*米)/g, '<span class="cond-tag tag-num">$1</span>');
+        // 3. Basketball Specific Actions (Shoot vs Drive)
+        parsed = replaceTextOutsideTags(parsed, /(投篮)/g, '<span class="cond-tag tag-action-shoot">🏀 $1</span>');
+        parsed = replaceTextOutsideTags(parsed, /(突破)/g, '<span class="cond-tag tag-action-drive">⚡ $1</span>');
+        
+        // 4. Basketball Principles Traps (Ball-oriented vs Person-oriented)
+        parsed = replaceTextOutsideTags(parsed, /(以球为主)/g, '<span class="cond-tag tag-warn">⚠️ $1</span>');
+        parsed = replaceTextOutsideTags(parsed, /(以人为主)/g, '<span class="cond-tag tag-ok">✓ $1</span>');
+        parsed = replaceTextOutsideTags(parsed, /(不允许|犯规已达6次)/g, '<span class="cond-tag tag-warn">$1</span>');
+        parsed = replaceTextOutsideTags(parsed, /(允许)/g, '<span class="cond-tag tag-ok">$1</span>');
+        
+        // 5. Special metric distance values and numbers
+        parsed = replaceTextOutsideTags(parsed, /(800\s*米|1000\s*米|50\s*米|2\s*分|3\s*分|两\s*分|三\s*分|罚\s*球)/g, '<span class="cond-tag tag-num">$1</span>');
         
         return parsed;
     }
@@ -469,6 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const questionObj = db.find(q => q.id === id);
                 if (questionObj) {
                     copyToClipboard(questionObj.answer, `答案 [${questionObj.answer}] 已复制到剪贴板！`);
+                    triggerAutoClear();
                 }
                 e.preventDefault();
             } else if (visibleCards.length > 0) {
@@ -478,6 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (questionObj) {
                     selectCard(0);
                     copyToClipboard(questionObj.answer, `答案 [${questionObj.answer}] 已复制到剪贴板！`);
+                    triggerAutoClear();
                 }
                 e.preventDefault();
             }
@@ -487,11 +511,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Search input change handler
     searchInput.addEventListener('input', performSearch);
 
+    // Listen keypress: if we need to auto-clear, and it's a character key, clear input first
+    searchInput.addEventListener('keydown', (e) => {
+        if (needClearOnNextInput && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            searchInput.value = '';
+            needClearOnNextInput = false; // Reset flag
+        }
+    });
+
+    // Reset auto-clear flag if user clicks to edit
+    searchInput.addEventListener('click', () => {
+        if (needClearOnNextInput) {
+            needClearOnNextInput = false;
+        }
+    });
+
     // Clear search button
     clearBtn.addEventListener('click', () => {
         searchInput.value = '';
         performSearch();
         searchInput.focus();
+        needClearOnNextInput = false;
     });
 
     // --- Scroll-to-Top Button logic ---

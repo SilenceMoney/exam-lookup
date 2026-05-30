@@ -534,6 +534,70 @@ document.addEventListener('DOMContentLoaded', () => {
         needClearOnNextInput = false;
     });
 
+    // --- 语音搜题 (Web Speech API) ---
+    const voiceBtn = document.getElementById('voice-btn');
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'zh-CN';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        let isListening = false;
+
+        voiceBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (isListening) {
+                recognition.stop();
+            } else {
+                try {
+                    recognition.start();
+                } catch (err) {
+                    console.error('语音识别启动失败:', err);
+                }
+            }
+        });
+
+        recognition.onstart = () => {
+            isListening = true;
+            voiceBtn.classList.add('listening');
+            voiceBtn.title = "正在倾听中...点击停止";
+            searchInput.placeholder = "请大声说出题目关键字...";
+        };
+
+        recognition.onend = () => {
+            isListening = false;
+            voiceBtn.classList.remove('listening');
+            voiceBtn.title = "语音搜题";
+            searchInput.placeholder = "输入题目关键字、选项、或者拼音首字母检索...";
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            // 清理中文句号等标点，以防干扰题库字词匹配
+            const cleanTranscript = transcript.replace(/[。？！，、]/g, '');
+            searchInput.value = cleanTranscript;
+            performSearch();
+            showToast(`🎙️ 识别成功: "${cleanTranscript}"`);
+            
+            // 复制前置：激活我们的智能清空，下一次按键直接覆盖
+            triggerAutoClear();
+        };
+
+        recognition.onerror = (event) => {
+            console.error('语音识别出错:', event.error);
+            if (event.error === 'not-allowed') {
+                showToast('❌ 请允许浏览器启用麦克风权限！');
+            } else {
+                showToast('❌ 语音识别失败，请再试一次！');
+            }
+        };
+    } else {
+        // 如果浏览器不支持语音识别（如一些老旧内置浏览器），优雅隐藏按钮
+        voiceBtn.style.display = 'none';
+    }
+
     // --- Scroll-to-Top Button logic ---
     window.addEventListener('scroll', () => {
         if (window.scrollY > 300) {

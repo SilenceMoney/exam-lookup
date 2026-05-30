@@ -673,3 +673,53 @@ mark {
         font-size: 0.8rem;
     }
 }
+
+/* Condition Tags for Similar Questions Differentiating */
+.cond-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin: 0 0.2rem;
+    vertical-align: middle;
+    letter-spacing: 0.02em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+}
+
+.cond-tag.tag-boy {
+    background: rgba(59, 130, 246, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.15) inset;
+}
+
+.cond-tag.tag-girl {
+    background: rgba(244, 114, 182, 0.15);
+    color: #f472b6;
+    border: 1px solid rgba(244, 114, 182, 0.4);
+    box-shadow: 0 0 10px rgba(244, 114, 182, 0.15) inset;
+}
+
+.cond-tag.tag-g12 {
+    background: rgba(234, 179, 8, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(234, 179, 8, 0.4);
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.1) inset;
+}
+
+.cond-tag.tag-g34 {
+    background: rgba(249, 115, 22, 0.15);
+    color: #fb923c;
+    border: 1px solid rgba(249, 115, 22, 0.4);
+    box-shadow: 0 0 10px rgba(249, 115, 22, 0.1) inset;
+}
+
+.cond-tag.tag-num {
+    background: rgba(167, 139, 250, 0.15);
+    color: #c084fc;
+    border: 1px solid rgba(167, 139, 250, 0.4);
+    box-shadow: 0 0 10px rgba(167, 139, 250, 0.1) inset;
+}
+

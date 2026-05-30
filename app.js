@@ -136,7 +136,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const subjectBadge = `<span class="badge subject">${q.subject}</span>`;
             
             // Highlighted question text
-            const highlightedQuestion = highlightText(q.question, queryTerms);
+            let highlightedQuestion = highlightText(q.question, queryTerms);
+            highlightedQuestion = parseConditionTags(highlightedQuestion);
             
             let optionsHtml = '';
             let directAnswerHtml = '';
@@ -150,7 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     q.options.forEach(opt => {
                         const isCorrect = correctKeys.includes(opt.key);
                         const correctClass = isCorrect ? 'correct' : '';
-                        const highlightedOptText = highlightText(opt.text, queryTerms);
+                        let highlightedOptText = highlightText(opt.text, queryTerms);
+                        highlightedOptText = parseConditionTags(highlightedOptText);
                         
                         optionsHtml += `
                             <div class="option-item ${correctClass}">
@@ -162,26 +164,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     optionsHtml += `</div>`;
                 } else {
                     // Fallback if options failed to parse but text exists
-                    const highlightedOptionsRaw = highlightText(q.options_raw, queryTerms);
+                    let highlightedOptionsRaw = highlightText(q.options_raw, queryTerms);
+                    highlightedOptionsRaw = parseConditionTags(highlightedOptionsRaw);
                     optionsHtml = `
                         <div style="margin-bottom: 1rem; color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem; background: rgba(255,255,255,0.02); padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid var(--border-color);">
                             <strong>选项内容:</strong> ${highlightedOptionsRaw}
                         </div>
                     `;
                     
+                    let highlightedAnswer = highlightText(q.answer, queryTerms);
+                    highlightedAnswer = parseConditionTags(highlightedAnswer);
                     directAnswerHtml = `
                         <div class="direct-answer-container">
                             <span class="direct-answer-label">参考答案</span>
-                            <span class="direct-answer-text">${q.answer}</span>
+                            <span class="direct-answer-text">${highlightedAnswer}</span>
                         </div>
                     `;
                 }
             } else {
                 // 判断题 or 填空题
+                let highlightedAnswer = highlightText(q.answer, queryTerms);
+                highlightedAnswer = parseConditionTags(highlightedAnswer);
                 directAnswerHtml = `
                     <div class="direct-answer-container">
                         <span class="direct-answer-label">正确答案</span>
-                        <span class="direct-answer-text">${q.answer}</span>
+                        <span class="direct-answer-text">${highlightedAnswer}</span>
                     </div>
                 `;
             }
@@ -241,6 +248,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         return highlighted;
+    }
+
+    // Helper: Replace text only outside HTML tags to avoid breaking tag attributes
+    function replaceTextOutsideTags(html, searchRegExp, replaceTemplate) {
+        const parts = html.split(/(<[^>]+>)/g);
+        for (let i = 0; i < parts.length; i++) {
+            if (i % 2 === 0) { // Text node, safe to replace
+                parts[i] = parts[i].replace(searchRegExp, replaceTemplate);
+            }
+        }
+        return parts.join('');
+    }
+
+    // Helper: Add colored neon tags to key conditions (gender, grade, metrics) to make similar questions pop out
+    function parseConditionTags(html) {
+        if (!html) return html;
+        let parsed = html;
+        
+        // 1. Gender Conditions (boys are neon blue, girls are neon pink/rose)
+        parsed = replaceTextOutsideTags(parsed, /(男生|男子|男)/g, '<span class="cond-tag tag-boy">♂ $1</span>');
+        parsed = replaceTextOutsideTags(parsed, /(女生|女子|女)/g, '<span class="cond-tag tag-girl">♀ $1</span>');
+        
+        // 2. Grades/Years (Grade 1/2 is yellow, Grade 3/4 is orange)
+        parsed = replaceTextOutsideTags(parsed, /(大一大二)/g, '<span class="cond-tag tag-g12">$1</span>');
+        parsed = replaceTextOutsideTags(parsed, /(大三大四)/g, '<span class="cond-tag tag-g34">$1</span>');
+        
+        // 3. Special metric distance values
+        parsed = replaceTextOutsideTags(parsed, /(800\s*米|1000\s*米|50\s*米)/g, '<span class="cond-tag tag-num">$1</span>');
+        
+        return parsed;
     }
 
     // Helper: Determine badge class

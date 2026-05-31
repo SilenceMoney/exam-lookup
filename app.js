@@ -44,70 +44,143 @@ document.addEventListener('DOMContentLoaded', () => {
     searchInput.focus();
 
     // --- Search & Filtering Logic ---
+
+    // Check if Chinese characters of query appear in text in order (not necessarily contiguous)
+    // e.g. "大二男" matches "大一大二男生立定跳远的满分为"
+    function sequentialChineseMatch(query, text) {
+        let qi = 0;
+        for (let ti = 0; ti < text.length && qi < query.length; ti++) {
+            if (text[ti] === query[qi]) {
+                qi++;
+            }
+        }
+        return qi === query.length;
+    }
+
+    // Check if a string contains at least one Chinese character
+    function hasChineseChars(str) {
+        return /[一-鿿]/.test(str);
+    }
+
+    // Score a single term against an item for relevance ranking
+    function scoreTerm(item, term) {
+        let score = 0;
+        let matched = false;
+        const qLow = item.question.toLowerCase();
+        const optLow = item.options_raw.toLowerCase();
+        const ansLow = item.answer.toLowerCase();
+        const subLow = item.subject.toLowerCase();
+        const typeLow = item.type.toLowerCase();
+
+        // Highest: exact contiguous match in question text
+        if (qLow.includes(term)) {
+            matched = true;
+            score += 100;
+            // Bonus for starting match
+            if (qLow.startsWith(term)) score += 50;
+            // Bonus for clause-start match (after punctuation)
+            const idx = qLow.indexOf(term);
+            if (idx > 0 && /[，。？、\s）\)]/.test(qLow.charAt(idx - 1))) score += 30;
+        }
+
+        // Sequential Chinese character match in question (fewer keystrokes to narrow)
+        if (!matched && hasChineseChars(term) && sequentialChineseMatch(term, qLow)) {
+            matched = true;
+            score += 60;
+        }
+
+        // Pinyin initials match
+        if (!matched && item.q_initials && item.q_initials.includes(term)) {
+            matched = true;
+            score += 40;
+        }
+
+        // Full pinyin match
+        if (!matched && item.q_full && item.q_full.includes(term)) {
+            matched = true;
+            score += 35;
+        }
+
+        // Options match
+        if (optLow.includes(term)) {
+            if (!matched) { matched = true; score += 20; }
+            else { score += 10; }
+        }
+
+        // Answer match
+        if (ansLow.includes(term)) {
+            if (!matched) { matched = true; score += 15; }
+            else { score += 5; }
+        }
+
+        // Subject / type match
+        if (subLow.includes(term) || typeLow.includes(term)) {
+            if (!matched) { matched = true; score += 5; }
+        }
+
+        return { matched, score };
+    }
+
     function performSearch() {
         const startTime = performance.now();
-        
+
         const rawQuery = searchInput.value.trim().toLowerCase();
         searchQuery = rawQuery;
-        
+
         // Split query into space-separated terms for multi-word search
         const queryTerms = rawQuery.split(/\s+/).filter(t => t.length > 0);
-        
-        const filtered = db.filter(item => {
+
+        const scored = [];
+
+        db.forEach(item => {
             // 1. Subject filter
-            if (activeSubject !== 'all' && item.subject !== activeSubject) {
-                return false;
-            }
-            
+            if (activeSubject !== 'all' && item.subject !== activeSubject) return;
+
             // 2. Type filter
-            if (activeType !== 'all' && item.type !== activeType) {
-                return false;
-            }
-            
+            if (activeType !== 'all' && item.type !== activeType) return;
+
             // 3. Keyword matching (all query terms must match)
             if (queryTerms.length > 0) {
-                return queryTerms.every(term => {
-                    // Match question text
-                    if (item.question.toLowerCase().includes(term)) return true;
-                    
-                    // Match options raw text
-                    if (item.options_raw.toLowerCase().includes(term)) return true;
-                    
-                    // Match pinyin initials
-                    if (item.q_initials && item.q_initials.includes(term)) return true;
-                    
-                    // Match full pinyin
-                    if (item.q_full && item.q_full.includes(term)) return true;
-                    
-                    // Match answer
-                    if (item.answer.toLowerCase().includes(term)) return true;
-                    
-                    // Match subject/type
-                    if (item.subject.toLowerCase().includes(term)) return true;
-                    if (item.type.toLowerCase().includes(term)) return true;
-                    
+                let totalScore = 0;
+                const allMatch = queryTerms.every(term => {
+                    const r = scoreTerm(item, term);
+                    if (r.matched) {
+                        totalScore += r.score;
+                        return true;
+                    }
                     return false;
                 });
+                if (allMatch) {
+                    // Multi-term density bonus
+                    totalScore += queryTerms.length * 10;
+                    scored.push({ item, score: totalScore });
+                }
+                return;
             }
-            
-            return true;
+
+            // No query — include all after filters, unsorted
+            scored.push({ item, score: 0 });
         });
+
+        // Sort by relevance score descending
+        scored.sort((a, b) => b.score - a.score);
+        const filtered = scored.map(s => s.item);
 
         const endTime = performance.now();
         const duration = (endTime - startTime).toFixed(1);
-        
+
         // Update stats
         matchedCountEl.textContent = filtered.length.toLocaleString();
         searchTimeEl.textContent = duration;
-        
+
         // Reset keyboard selection
         selectedIndex = -1;
-        
+
         // Render results (sliced for performance)
         const maxResults = 100;
         const slicedResults = filtered.slice(0, maxResults);
         renderResults(slicedResults, queryTerms);
-        
+
         if (filtered.length > 1 && queryTerms.length > 0) {
             resultsMetaEl.innerHTML = `<span style="color: #f59e0b; font-weight: 800; animation: pulseGlow 1.5s infinite;">⚠️ 检测到相似题干！</span> 请仔细比对 <span class="cond-tag tag-action-shoot" style="font-size:0.75rem; padding: 0.1rem 0.35rem;">🏀 投篮/突破</span>、<span class="cond-tag tag-warn" style="font-size:0.75rem; padding: 0.1rem 0.35rem;">以球为主/以人为主</span> 等发光条件胶囊！`;
         } else if (filtered.length > maxResults) {

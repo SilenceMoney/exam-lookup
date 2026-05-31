@@ -723,5 +723,598 @@ mark {
     box-shadow: 0 0 10px rgba(167, 139, 250, 0.1) inset;
 }
 
+/* ==========================================================================
+   Tab Navigation & Multi-View Panel Styles
+   ========================================================================== */
+.tabs-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 0 auto 2.5rem auto;
+    background: rgba(15, 18, 25, 0.6);
+    border: 1px solid var(--border-color);
+    padding: 0.35rem;
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+}
+
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-secondary);
+    padding: 0.75rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.tab-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.tab-btn.active {
+    color: white;
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.view-panel {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.view-panel.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==========================================================================
+   Structured Study Layout (Sidebar & Main content)
+   ========================================================================== */
+.study-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* Study Sidebar */
+.study-sidebar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 1.25rem;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+}
+
+.sidebar-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sidebar-header h3 {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+}
+
+.sidebar-header p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.study-category-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Category Card */
+.category-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.category-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+}
+
+.category-card.active {
+    background: rgba(59, 130, 246, 0.08);
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 10px rgba(59, 130, 246, 0.1) inset;
+}
+
+.category-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.category-card-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.category-card.active .category-card-title {
+    color: #60a5fa;
+}
+
+.category-card-count {
+    font-size: 0.75rem;
+    font-family: monospace;
+    font-weight: 700;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.category-card.active .category-card-count {
+    color: #3b82f6;
+    background: rgba(59, 130, 246, 0.15);
+}
+
+/* Category Progress Bar Mini */
+.category-progress-mini {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.25rem;
+}
+
+.category-progress-meta-mini {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.category-progress-bar-bg-mini {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 9999px;
+    overflow: hidden;
+}
+
+.category-progress-bar-fill-mini {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #34d399);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* Study Main Area */
+.study-main {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Selected Category Card (Brainmap) */
+.selected-category-card {
+    background: linear-gradient(135deg, rgba(20, 24, 33, 0.8) 0%, rgba(15, 18, 25, 0.8) 100%);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    padding: 1.75rem;
+    backdrop-filter: blur(15px);
+    position: relative;
+    overflow: hidden;
+}
+
+.selected-category-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #10b981, #3b82f6);
+}
+
+.selected-category-card h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: white;
+}
+
+.selected-category-card p.cat-desc {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+}
+
+.facts-header-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #10b981;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.selected-category-facts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.03);
+    padding: 1.25rem;
+    border-radius: 12px;
+}
+
+.selected-category-facts-list li {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    line-height: 1.6;
+    list-style-type: none;
+    position: relative;
+    padding-left: 1.25rem;
+}
+
+.selected-category-facts-list li::before {
+    content: '✦';
+    position: absolute;
+    left: 0;
+    color: #10b981;
+    font-weight: bold;
+}
+
+/* Study Toolbar */
+.study-toolbar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 1rem 1.25rem;
+    border-radius: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    backdrop-filter: blur(12px);
+}
+
+.tool-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tool-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary);
+}
+
+.tool-btn.active {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: #34d399;
+}
+
+.switch-container {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.switch-container input[type="checkbox"] {
+    appearance: none;
+    width: 40px;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+    position: relative;
+    outline: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.switch-container input[type="checkbox"]::before {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: white;
+    top: 2px;
+    left: 2px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.switch-container input[type="checkbox"]:checked {
+    background: #10b981;
+}
+
+.switch-container input[type="checkbox"]:checked::before {
+    transform: translateX(20px);
+}
+
+.switch-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.switch-container:hover .switch-label {
+    color: var(--text-primary);
+}
+
+/* Study Progress Card */
+.study-progress-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 1.25rem;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    backdrop-filter: blur(12px);
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.glow-text {
+    color: #60a5fa;
+    text-shadow: 0 0 10px rgba(96, 165, 250, 0.3);
+}
+
+.glow-text-success {
+    color: #34d399;
+    text-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+}
+
+.progress-bar-bg {
+    height: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 9999px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #60a5fa 100%);
+    width: 0%;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+}
+
+/* Study Question List wrapper */
+.study-questions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+/* Mastered checkbox in cards */
+.mastered-checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.mastered-checkbox-container:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.mastered-checkbox-container input[type="checkbox"] {
+    accent-color: #10b981;
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+.mastered-checkbox-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.mastered-checkbox-container input[type="checkbox"]:checked + .mastered-checkbox-label {
+    color: #34d399;
+}
+
+/* Interactive Option clicks in Practice Mode */
+.option-item.clickable {
+    cursor: pointer;
+}
+
+.option-item.clickable:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.option-item.wrong {
+    background: rgba(239, 68, 68, 0.1) !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.1) inset !important;
+}
+
+.option-item.wrong .option-letter {
+    background: var(--danger) !important;
+    color: white !important;
+}
+
+.option-item.wrong .option-text {
+    color: #fca5a5 !important;
+}
+
+.option-item.wrong::after {
+    content: '×';
+    margin-left: auto;
+    color: var(--danger);
+    font-weight: 800;
+    font-size: 1.4rem;
+    padding-left: 0.5rem;
+}
+
+.option-item.correct-reveal {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.15) inset !important;
+    animation: correctPulse 1s infinite alternate;
+}
+
+.option-item.correct-reveal .option-letter {
+    background: var(--success) !important;
+    color: white !important;
+}
+
+.option-item.correct-reveal .option-text {
+    color: #34d399 !important;
+    font-weight: 700 !important;
+}
+
+.option-item.correct-reveal::after {
+    content: '✓';
+    margin-left: auto;
+    color: var(--success);
+    font-weight: 800;
+    font-size: 1.2rem;
+    padding-left: 0.5rem;
+}
+
+@keyframes correctPulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.01); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2) inset; }
+}
+
+/* Mastered question cards visual state */
+.question-card.mastered {
+    opacity: 0.45;
+    border-color: rgba(16, 185, 129, 0.2);
+    box-shadow: none;
+}
+
+.question-card.mastered:hover {
+    opacity: 0.8;
+}
+
+.question-card.hidden {
+    display: none !important;
+}
+
+/* Custom categories in sidebar count glows */
+.category-card.completed {
+    border-color: rgba(16, 185, 129, 0.25);
+    background: rgba(16, 185, 129, 0.02);
+}
+
+.category-card.completed .category-card-count {
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 1024px) {
+    .study-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .study-sidebar {
+        position: relative;
+        top: 0;
+        max-height: 250px;
+        overflow-y: auto;
+    }
+    
+    .study-category-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: 0.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .study-category-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .study-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .toolbar-left {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .toolbar-left .tool-btn {
+        flex: 1;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+    }
+    
+    .toolbar-right {
+        text-align: center;
+        margin-top: 0.25rem;
+    }
+}
+
+
 
 

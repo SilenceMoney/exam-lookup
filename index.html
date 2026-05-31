@@ -39,47 +39,110 @@
             </div>
         </header>
 
-        <!-- Search Bar -->
-        <div class="search-wrapper">
-            <div class="search-container">
-                <span class="search-icon">🔍</span>
-                <input type="text" id="search-input" class="search-input" placeholder="输入题目关键字、选项、或者拼音首字母检索（如: &quot;ldty&quot; 或 &quot;ldty nan&quot;）..." autofocus autocomplete="off">
-                <button id="clear-btn" class="clear-btn" title="清空搜索内容">×</button>
-            </div>
+        <!-- Tab Switcher -->
+        <div class="tabs-container">
+            <button class="tab-btn active" id="tab-search">⚡ 极速查题模式</button>
+            <button class="tab-btn" id="tab-study">📚 知识点背诵与自测通关</button>
         </div>
 
-        <!-- Filters Section -->
-        <div class="filters-wrapper">
-            <div class="filter-group">
-                <div class="filter-label">科目分类 (Subject Filter)</div>
-                <div id="subject-filters" class="filter-options">
-                    <button class="filter-pill active" data-filter="all" data-type="subject">
-                        全部科目 <span class="count" id="count-subj-all">0</span>
-                    </button>
-                    <!-- JavaScript will generate pills here -->
+        <!-- Search View Panel (Original Search Mode) -->
+        <div id="search-view" class="view-panel active">
+            <!-- Search Bar -->
+            <div class="search-wrapper">
+                <div class="search-container">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="search-input" class="search-input" placeholder="输入题目关键字、选项、或者拼音首字母检索（如: &quot;ldty&quot; 或 &quot;ldty nan&quot;）..." autofocus autocomplete="off">
+                    <button id="clear-btn" class="clear-btn" title="清空搜索内容">×</button>
                 </div>
             </div>
-            
-            <div class="filter-group">
-                <div class="filter-label">题型分类 (Type Filter)</div>
-                <div id="type-filters" class="filter-options">
-                    <button class="filter-pill active" data-filter="all" data-type="type">
-                        全部题型 <span class="count" id="count-type-all">0</span>
-                    </button>
-                    <!-- JavaScript will generate pills here -->
+
+            <!-- Filters Section -->
+            <div class="filters-wrapper">
+                <div class="filter-group">
+                    <div class="filter-label">科目分类 (Subject Filter)</div>
+                    <div id="subject-filters" class="filter-options">
+                        <button class="filter-pill active" data-filter="all" data-type="subject">
+                            全部科目 <span class="count" id="count-subj-all">0</span>
+                        </button>
+                        <!-- JavaScript will generate pills here -->
+                    </div>
                 </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">题型分类 (Type Filter)</div>
+                    <div id="type-filters" class="filter-options">
+                        <button class="filter-pill active" data-filter="all" data-type="type">
+                            全部题型 <span class="count" id="count-type-all">0</span>
+                        </button>
+                        <!-- JavaScript will generate pills here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Info -->
+            <div class="results-header">
+                <div class="results-title">检索结果</div>
+                <div class="results-count" id="results-meta">已为您展示前 100 条匹配结果</div>
+            </div>
+
+            <!-- Results List -->
+            <div id="results-list" class="results-list">
+                <!-- Questions rendered here by app.js -->
             </div>
         </div>
 
-        <!-- Results Info -->
-        <div class="results-header">
-            <div class="results-title">检索结果</div>
-            <div class="results-count" id="results-meta">已为您展示前 100 条匹配结果</div>
-        </div>
+        <!-- Study View Panel (Structured Study Mode) -->
+        <div id="study-view" class="view-panel">
+            <div class="study-layout">
+                <!-- Study Sidebar (Knowledge Points List) -->
+                <aside class="study-sidebar">
+                    <div class="sidebar-header">
+                        <h3>📚 核心考点库</h3>
+                        <p>点击知识点开展专项学习</p>
+                    </div>
+                    <div id="study-category-list" class="study-category-list">
+                        <!-- Categories injected by JS -->
+                    </div>
+                </aside>
 
-        <!-- Results List -->
-        <div id="results-list" class="results-list">
-            <!-- Questions rendered here by app.js -->
+                <!-- Study Main Content -->
+                <main class="study-main">
+                    <!-- Selected Category Header Info -->
+                    <div id="selected-category-info" class="selected-category-card">
+                        <!-- Injected Category Facts Mindmap -->
+                    </div>
+
+                    <!-- Study Toolbar -->
+                    <div class="study-toolbar">
+                        <div class="toolbar-left">
+                            <button id="study-mode-memorize" class="tool-btn active">📖 背题模式 (直显答案)</button>
+                            <button id="study-mode-practice" class="tool-btn">✏️ 刷题模式 (点击自测)</button>
+                        </div>
+                        <div class="toolbar-right">
+                            <label class="switch-container">
+                                <input type="checkbox" id="hide-mastered-toggle">
+                                <span class="switch-label">隐藏已掌握题目</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Category Study Progress Bar -->
+                    <div class="study-progress-card">
+                        <div class="progress-info">
+                            <span>📚 当前知识点复习进度：<span id="study-progress-text" class="glow-text">0 / 0</span></span>
+                            <span id="study-progress-percent" class="glow-text-success">0%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="study-progress-bar-fill" class="progress-bar-fill"></div>
+                        </div>
+                    </div>
+
+                    <!-- Study Question List -->
+                    <div id="study-questions-list" class="study-questions-list">
+                        <!-- Questions injected by JS -->
+                    </div>
+                </main>
+            </div>
         </div>
     </div>
 
